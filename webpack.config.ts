@@ -1,3 +1,5 @@
+import webpack = require("webpack");
+
 const path = require('path');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -6,9 +8,10 @@ module.exports = {
     entry: './src/index.tsx',
     output: {
         path: path.resolve(__dirname, 'dist'),
+        //打包后js名称，支持路径+名称
         filename: 'bundle.js',
-        //静态文件位置
-        // publicPath: 'dist/'
+        //每次打包前清空文件
+        clean: true,
     },
     module: {
         rules: [
@@ -55,14 +58,36 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HTMLWebpackPlugin({
             template: "./src/index.html"
+        }),
+        new webpack.DefinePlugin({
+            __DEV__: true,
+            __PROFILE__: true,
+            __EXPERIMENTAL__: true,
+            __UMD__: true,
         })
     ],
+    devServer: {
+        watchFiles: ['src/**/*', 'public/**/*'],
+        compress: true,
+        port: 9000,
+        open: true,//自动打开浏览器
+        client: {
+            overlay: {
+                errors: true,
+                warnings: false,
+            },
+        },
+    },
+    devtool: 'source-map',
     mode: 'development',
     resolve: {
         alias: {
             '@/': '/src/',
-            'react':path.resolve(__dirname, './packages/react-18.2.0/packages/react'),
-            'react-dom':path.resolve(__dirname, './packages/react-18.2.0/packages/react-dom'),
+            'react': path.resolve(__dirname, './packages/react-18.2.0/packages/react'),
+            'react-dom': path.resolve(__dirname, './packages/react-18.2.0/packages/react-dom'),
+            'shared': path.resolve(__dirname, './packages/react-18.2.0/packages/shared'),
+            'scheduler': path.resolve(__dirname, './packages/react-18.2.0/packages/scheduler'),
+            'react-reconciler': path.resolve(__dirname, './packages/react-18.2.0/packages/react-reconciler'),
         },
         extensions: ['.ts', '.js']
     }

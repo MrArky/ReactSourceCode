@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "react": [
+        "packages/react-18.2.0/packages/react"
+      ],
+      "react-dom": [
+        "packages/react-18.2.0/packages/react-dom"
+      ],
+    }
+  },
+}
