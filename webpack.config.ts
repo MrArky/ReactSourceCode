@@ -89,6 +89,6 @@ module.exports = {
             'scheduler': path.resolve(__dirname, './packages/react-18.2.0/packages/scheduler'),
             'react-reconciler': path.resolve(__dirname, './packages/react-18.2.0/packages/react-reconciler'),
         },
-        extensions: ['.ts', '.js']
+        extensions: ['.ts', '.tsx', '.js', '.jsx']
     }
 }
