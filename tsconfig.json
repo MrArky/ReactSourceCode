@@ -9,6 +9,9 @@
       "react-dom": [
         "packages/react-18.2.0/packages/react-dom"
       ],
+      "react-hooks": [
+        "packages/react-18.2.0/packages/react/src/ReactHooks"
+      ],
     }
   },
 }

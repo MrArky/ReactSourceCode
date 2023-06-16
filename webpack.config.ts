@@ -85,6 +85,7 @@ module.exports = {
             '@/': '/src/',
             'react': path.resolve(__dirname, './packages/react-18.2.0/packages/react'),
             'react-dom': path.resolve(__dirname, './packages/react-18.2.0/packages/react-dom'),
+            'react-hooks': path.resolve(__dirname, './packages/react-18.2.0/packages/react/src/ReactHooks'),
             'shared': path.resolve(__dirname, './packages/react-18.2.0/packages/shared'),
             'scheduler': path.resolve(__dirname, './packages/react-18.2.0/packages/scheduler'),
             'react-reconciler': path.resolve(__dirname, './packages/react-18.2.0/packages/react-reconciler'),
