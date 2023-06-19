@@ -1,5 +1,5 @@
 ## react-dom 渲染器
-众所周知 React 的入口都是调用如下代码：
+基于Web开发，所以着重分析 `react-dom` 。众所周知 React 的入口都是调用如下代码：
 ``` html
 <!DOCTYPE html>
 <html>
