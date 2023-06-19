@@ -24,7 +24,7 @@ render(<App />, document.getElementById('root'));
 在这个版本的 [CHANGELOG.md](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/CHANGELOG.md) 中 `334` 行有这么一句话：
 > Remove `unstable_createRoot` and `unstable_createSyncRoot` experimental APIs. (These are available in the Experimental channel as `createRoot` and `createSyncRoot`.) ([@acdlite](http://github.com/acdlite) in [#17088](https://github.com/facebook/react/pull/17088))
 
-意思就是 `createRoot` 替代了实验性的 `unstable_createRoot` API，可以在生产环境中使用，这就有了在 React18+ 中，入口调用通常是这么写：
+意思就是 `createRoot` 替代了实验性的 `unstable_createRoot` API，可以在生产环境中使用（[In our testing, we’ve upgraded thousands of components to React 18. What we’ve found is that nearly all existing components “just work” with concurrent rendering, without any changes.](https://react.docschina.org/blog/2022/03/29/react-v18#gradually-adopting-concurrent-features)），这就有了在 React18+ 中，入口调用通常是这么写：
 ``` TypeScript
 import { createRoot } from 'react-dom/client';
 const root = createRoot(document.getElementById('root'));
