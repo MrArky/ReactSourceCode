@@ -30,4 +30,6 @@ import { createRoot } from 'react-dom/client';
 const root = createRoot(document.getElementById('root'));
 root.render(<App />);
 ```
+实际上在 React18 继续使用 `ReactDom.render` 会触发如下警告：
+![image](https://github.com/MrArky/ReactSourceCode/assets/32703528/027a9fdf-7ed8-4baa-8594-76e0da5be140)
 具体二者共同点及差异见 [render & createRoot.md](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Render%EF%BC%88%E6%B8%B2%E6%9F%93%E5%99%A8%EF%BC%89/render%26createRoot.md)
