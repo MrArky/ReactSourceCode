@@ -37,7 +37,9 @@ export function createRoot(
     }
   }
 }
-
+/**
+ * 如果在项目使用了 ssr 服务端渲染，需要使用 hydrateRoot
+ */
 export function hydrateRoot(
   container: Document | Element,
   children: ReactNodeList,
