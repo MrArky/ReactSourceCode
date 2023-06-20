@@ -12,12 +12,6 @@
 </html>
 ```
 ``` TypeScript
-import * as React from 'react';
-const App = () =><div>初识React源码</div>；
-export default App;
-```
-
-``` TypeScript
 import { render } from 'react-dom';
 render(<App />, document.getElementById('root'));
 ```
@@ -33,3 +27,35 @@ root.render(<App />);
 实际上在 React18 继续使用 `ReactDom.render` 会触发如下警告：
 ![image](https://github.com/MrArky/ReactSourceCode/assets/32703528/027a9fdf-7ed8-4baa-8594-76e0da5be140)
 具体二者共同点及差异见 [render & createRoot.md](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Render%EF%BC%88%E6%B8%B2%E6%9F%93%E5%99%A8%EF%BC%89/render%26createRoot.md)
+
+便于观察使用 `createRoot` 创建根节点并执行 `root.render` 经历了什么，接下来在 App 组件中添加最简单的一段代码，让 React 项目运行起来，如下：
+``` TypeScript
+import * as React from 'react';
+const App = () =><div>初识React源码</div>；
+export default App;
+```
+最直接的方式是在浏览器中查看调用栈：
+
+![image](https://github.com/MrArky/ReactSourceCode/assets/32703528/e3cb738f-6a51-4476-87a2-fcdee718af75)
+
+从图中可以看到 `createRoot` 调用栈可以抽象成以下代码（参数和个方法中的其他逻辑均已忽略）：
+``` TypeScript
+createRoot(){
+  createRoot(){
+    createRoot(){
+      createContainer(){
+        createFiberRoot(){
+          createHostRootFiber(){
+            createFiber();
+          }
+        }
+      }
+      listenToAllSupportedEvents(){
+        ((匿名)=>listenToNativeEven())();
+      }
+    }
+  }
+}
+```
+
+
