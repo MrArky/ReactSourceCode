@@ -38,7 +38,7 @@ export default App;
 
 ![image](https://github.com/MrArky/ReactSourceCode/assets/32703528/e3cb738f-6a51-4476-87a2-fcdee718af75)
 
-从图中可以看到 `createRoot` 调用栈可以抽象成以下代码（参数和各方法中的其他逻辑均已忽略）：
+从图中可以看到 `createRoot` 调用栈可以还原成以下代码（参数和各方法中的其他逻辑均已忽略）：
 ``` TypeScript
 createRoot(){
   createRoot(){
