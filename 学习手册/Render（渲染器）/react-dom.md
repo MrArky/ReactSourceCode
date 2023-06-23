@@ -52,12 +52,14 @@ createRoot(){
       }
       listenToAllSupportedEvents(){
         (
-          (匿名)=>listenToNativeEven()
+          /** 匿名 */
+          ()=>listenToNativeEven()
         )();
       }
     }
   }
 }
 ```
-
-
+根据代码可以看到，执行包含了两个重要的阶段：
+-  createContainer 阶段——
+- listenToAllSupportedEvents 阶段——
