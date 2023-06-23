@@ -61,5 +61,10 @@ createRoot(){
 }
 ```
 根据代码可以看到，执行包含了两个重要的阶段：
--  createContainer 阶段——
-- listenToAllSupportedEvents 阶段——
+1. **createContainer** 阶段 —— 真正的逻辑实际从 `createFiberRoot` 开始（[源码](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberRoot.new.js#L167)）：
+   - 首先，创建了 `FiberRootNode` 对象 `root`；
+   - 再用 `createHostRootFiber` 创建了 `uninitializedFiber`；
+   - 将 `root` 的 `current` 指向了 `uninitializedFiber`；
+   - 将 `uninitializedFiber`  指向了 `root`；
+   - 最后，调用 `initializeUpdateQueue` 方法初始化 **更新队列**。
+3. **listenToAllSupportedEvents** 阶段 ——
