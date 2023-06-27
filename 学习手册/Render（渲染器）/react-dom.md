@@ -67,4 +67,5 @@ createRoot(){
    - 将 `root` 的 `current` 指向了 `uninitializedFiber`；
    - 将 `uninitializedFiber`  指向了 `root`；
    - 最后，调用 `initializeUpdateQueue` 方法初始化 **更新队列**。
+   `createHostRootFiber` 在调用了 `createFiber` ，所以 `uninitializedFiber` 其实是个 [Fiber()] 对象。
 3. **listenToAllSupportedEvents** 阶段 ——
