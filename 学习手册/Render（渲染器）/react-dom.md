@@ -68,5 +68,5 @@ createRoot(){
    - 将 `uninitializedFiber`  指向了 `root`；
    - 最后，调用 `initializeUpdateQueue` 方法初始化 **更新队列**。
      
-   `createHostRootFiber` 内部又调用了 `createFiber`并返回了 `createFiber` 的返回值，所以 `uninitializedFiber` 其实是个 [Fiber](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Scheduler%EF%BC%88%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%89/Fiber.md) 对象。
+   `createHostRootFiber` 内部又调用了 `createFiber` 并返回了 `createFiber` 的返回值，所以 `uninitializedFiber` 其实是个 [Fiber](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Scheduler%EF%BC%88%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%89/Fiber.md) 对象。
 3. **listenToAllSupportedEvents** 阶段 ——
