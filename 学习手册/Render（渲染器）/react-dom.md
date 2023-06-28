@@ -65,8 +65,25 @@ createRoot(){
    - 首先，创建了 `FiberRootNode` 对象 `root`；
    - 再用 `createHostRootFiber` 创建了 `uninitializedFiber`；
    - 将 `root` 的 `current` 指向了 `uninitializedFiber`；
-   - 将 `uninitializedFiber`  指向了 `root`；
+   - 将 `uninitializedFiber` 的 `stateNode` 指向了 `root`；
    - 最后，调用 `initializeUpdateQueue` 方法初始化 **更新队列**。
      
    `createHostRootFiber` 内部又调用了 `createFiber` 并返回了 `createFiber` 的返回值，所以 `uninitializedFiber` 其实是个 [Fiber](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Scheduler%EF%BC%88%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%89/Fiber.md) 对象。
+
+   到目前为止，`React` 已经构建了以下对象结构：
+   ```mermaid
+   classDiagram
+   root <|-- uninitializedFiber:stateNode
+   uninitializedFiber <|-- root:current
+   class root{
+     current:FiberNode
+     …
+   }
+   class uninitializedFiber{
+     stateNode:FiberRootNode
+     …
+   }
+   ```
+   为了方便源码阅读，这里将代码串联一下：
+   [createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/client.js#L25)->[createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOM.js#L150)->[createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L166)->[createContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.new.js#L247)->[createFiberRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberRoot.new.js#L134)->[createHostRootFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js#L428)->[createFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js#L210)
 3. **listenToAllSupportedEvents** 阶段 ——
