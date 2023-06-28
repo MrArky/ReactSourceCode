@@ -37,7 +37,7 @@ export default App;
 最直接的方式是在浏览器中查看调用栈：
 
 ![image](https://github.com/MrArky/ReactSourceCode/assets/32703528/e3cb738f-6a51-4476-87a2-fcdee718af75)
-
+### createRoot 阶段
 从图中可以看到 `createRoot` 调用栈可以还原成以下代码（参数和各方法中的其他逻辑均已忽略）：
 ``` TypeScript
 createRoot(){
@@ -86,4 +86,15 @@ createRoot(){
      …
    }
    ```
+   为什么叫 `uninitializedFiber(未初始化的Fiber)` —— 因为到这里为止，Fiber 还未与任何 `ReactNode` 建立联系，接下来还需要看在 `render` 函数里又发生了什么。
 2. **listenToAllSupportedEvents** 阶段 —— 注册所有支持的事件，暂不做讨论。
+### render 阶段
+回到图中函数调用栈，`render` 函数执行可以还原为以下代码（参数和各方法中的其他逻辑均已忽略）：
+``` TypeScript
+ReactDOMHydrationRoot.render.ReactDOMRoot.render(){
+  updateContainer(){
+    updateContainer();
+    scheduleUpdateOnFiber();
+  }
+}
+```
