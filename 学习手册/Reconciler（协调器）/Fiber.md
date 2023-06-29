@@ -9,7 +9,7 @@
 ### 为什么要引入 Fiber？
 `JS` 是单线程的，有一个 `Event Loop` 的概念（即事件循环，在浏览器或者Node环境解决 `JS` 单线程运行时不会阻塞的机制，也是异步的原理。）,存在一个具有优先级的任务队列，但只能按顺序执行队列中的任务，不能同时并发执行。
 那么有没有一种机制，能够在多任务中来回切换的机智，模拟类似单核 CUP 的逻辑多进程，使得 `JS` 拥有并发能力，高任务优先级别拥有插队能力？
-> 可以通过 [阮一峰](https://www.weibo.com/ruanyf) 的文章 [《JavaScript 运行机制详解：再谈Event Loop》](http://www.ruanyifeng.com/blog/2014/10/event-loop.html) 对其做更深入的了解。
+> 可以通过 [阮一峰](https://www.weibo.com/ruanyf) 的文章 [《 JavaScript 运行机制详解：再谈Event Loop 》](http://www.ruanyifeng.com/blog/2014/10/event-loop.html) 对其做更深入的了解。
 
 在使用 `Fiber` 重构 `Reconciler（协调器）` 之前，是以递归的方式创建和更新 `虚拟 DOM`，假如有如下 `JSX` 结构：
 ``` JSX
@@ -35,7 +35,7 @@ React.createElement1('div', { className: 'layout' },
 
 而在引入 `Fiber` 之前，每次更新都会创建一个新的 `虚拟 DOM 树`，并根据 `diff 算法` 找出与最后一次更新的 `虚拟 DOM 树` 不同的地方实现 `DOM` 的定向更新。这种 `同步代码` 一旦开始执行，就会占据 `JS` 线程直到其完成。
 
-回到之前的问题（可以肯定的回答——**有**）：
+回到之前的问题（可以肯定的回答—— **有** ）：
 - 如果希望更新 `DOM` 过程可以根据需要停止 `JS` 执行，那么这个执行过程一定是能切割的（将一个大的任务分割成若干个小任务，每个小任务执行完成后，需要看有没有紧急的其他任务需要执行，有的话就暂时退出 `JS` 堆栈），所以也就可中断；
 - 中断后的执行能够在允许的情况下（没有更高优先级的任务需要执行时且当前帧中有剩余的时间）恢复执行，那么上次执行打断时的 **状态** 是需要被保留的；
 - 如果这个更新已经过时，可以放弃继续执行即中止。
@@ -47,7 +47,7 @@ React.createElement1('div', { className: 'layout' },
 - 可以通过 `next` 函数重新回到 `JS` 堆栈继续执行；
 - 会保留 **上下文** 信息，同时还能根据 `next` 函数参数控制接下来的执行行为；
 - 如果不再调用它的 `next` 函数，它将永远不会回到`JS` 堆栈。
-> 可以通过 [阮一峰](https://www.weibo.com/ruanyf) 的著作 [《ECMAScript 6 入门》中 Generator 函数的语法 ](https://es6.ruanyifeng.com/#docs/generator) 进行学习。
+> 可以通过 [阮一峰](https://www.weibo.com/ruanyf) 的著作 [《 ECMAScript 6 入门 》中 Generator 函数的语法 ](https://es6.ruanyifeng.com/#docs/generator) 进行学习。
 
 在源码中，`React` 并没有使用 `Generator`，主要有以下几点原因：
 
