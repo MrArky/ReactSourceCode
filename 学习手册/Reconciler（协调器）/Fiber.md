@@ -169,7 +169,7 @@ function FiberNode(
 }
 ```
 为了更清楚的了解它，下面对各属性逐一分析：
-- **tag**：工作标签，一共有 26 种 [标签类型](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactWorkTags.js#L10) ，函数组件标签类型、类组件标签类型、不确定的组件标签类型、宿主环境标签类型（如果是 `web` 环境，指的就是:`a`、`p`、`div` ）···
+- **tag**：工作标签，一共有 26 种 [标签类型](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactWorkTags.js#L10) ，函数组件标签类型、类组件标签类型、不确定的组件标签类型、宿主环境标签类型（所谓原生，如果是 `web` 环境，指的就是:`a`、`p`、`div` ···）···
   
   在 `Fiber` 架构中，通过这里可以知道：**渲染后，组件和 `Fiber` 对象是一一对应的。**
 - **key**：组件定义时，如果指定了 `key` 属性，那么属性值会赋值给它，它将在 `diff` 算法中扮演至关重要的作用。
