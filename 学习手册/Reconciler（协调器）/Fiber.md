@@ -125,7 +125,7 @@ ipt.next(); // 报错
 React核心团队成员Sebastian Markbåge（React Hooks的发明者）曾说：我们在React中做的就是践行代数效应（Algebraic Effects）。
 > 这有一篇博文，阅读并快速了解它 [通俗易懂的代数效应](https://overreacted.io/zh-hans/algebraic-effects-for-the-rest-of-us/) ;
 ### Fiber 在 React 源码中的定义
-在 [react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js#L118) 中定义了 `Fiber` 对象的构造函数，代码如下：
+在 [源码](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js#L118) 中定义了 `Fiber` 对象的构造函数，代码如下：
 ``` TypeScript
 function FiberNode(
   tag: WorkTag,
