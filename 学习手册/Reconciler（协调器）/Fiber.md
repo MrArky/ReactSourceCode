@@ -180,5 +180,22 @@ function FiberNode(
 
     ···
 - **elementType**：React 元素类型，在 `MemoComponent` 、`LazyComponent` 等一些特殊 `tag` 类型，会跟 `type` 有所不同。
-- **stateNode**：如果是 `web` 环境，对应该 `Fiber` 管理的真实 'DOM'。
-- **return、child、sibling、index**：
+- **stateNode**：如果是 `web` 环境，对应该 `Fiber` 节点管理的真实 'DOM'。
+- **return、child、sibling、index**：组件渲染后，由于原有（老版本）的 `虚拟 DOM 树` 被 `Fiber 树` 所替代，这四个属性用于在新的 `Fiber 树` 与其他的节点建立关系，以 `App` 函数组件为例，它的返回值又由多个其他的组件组成：
+``` TypeScript
+const App: React.FC = () => {
+  return <div>
+    <p>初探 Fiber 关系</p>
+    <ul>
+      <li>努力</li>
+      <li>加油</li>
+      <li>上进</li>
+    </ul>
+  </div>
+}
+```
+``` mermaid
+  stateDiagram
+  App 
+```
+- 
