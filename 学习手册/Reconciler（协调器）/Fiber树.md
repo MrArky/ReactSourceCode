@@ -14,8 +14,8 @@ const App: React.FC = () => {
 对应的 `Fiber 树` 为（括号数字为**index**的值）：
 ``` mermaid
   stateDiagram
-  App(0) --> div(0) : child
-  div(0) --> App(0) : return
+  App(index跟fiber在自己父节点位置有关) --> div(0) : child
+  div(0) --> App(跟它在自己父节点位置有关) : return
   div(0) --> p(0) : child
   string1: 初探 Fiber 树(0)
   string2: 努力(0)
