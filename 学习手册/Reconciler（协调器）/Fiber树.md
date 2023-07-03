@@ -11,30 +11,31 @@ const App: React.FC = () => {
   </div>
 }
 ```
+对应的 `Fiber 树` 为（括号数字为**index**的值）：
 ``` mermaid
   stateDiagram
-  App --> div : child
-  div --> App : return
-  div --> p : child
+  App(0) --> div(0) : child
+  div(0) --> App(0) : return
+  div(0) --> p(0) : child
   string1: 初探 Fiber 树
   string2: 努力
   string3: 加油
   string4: 上进
-  li1 : li
-  li2 : li
-  li3 : li
-  p --> string1 : child
-  p --> ul : sibling
-  p --> div : return
-  ul --> li1 : child
-  ul --> div : return
+  li1 : li(0)
+  li2 : li(1)
+  li3 : li(2)
+  p(0) --> string1 : child
+  p(0) --> ul(1) : sibling
+  p(0) --> div(0) : return
+  ul(1) --> li1 : child
+  ul(1) --> div(0) : return
   li1 --> string2 : child
   li1 --> li2 : sibling
-  li1 --> ul : return
+  li1 --> ul(1) : return
   li2 --> string3 : child
   li2 --> li3 : sibling
-  li2 --> ul : return
+  li2 --> ul(1) : return
   li3 --> string4 : child
-  li3 --> ul : return
+  li3 --> ul(1) : return
 ```
 - 
