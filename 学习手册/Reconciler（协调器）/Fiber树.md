@@ -1,4 +1,4 @@
-- **return、child、sibling、index**：组件渲染后，由于原有（老版本）的 `虚拟 DOM 树` 被 `Fiber 树` 所替代，这四个属性用于在新的 `Fiber 树` 与其他的节点建立关系，以 `App` 函数组件为例，它的返回值又由多个其他的组件组成：
+- **return、child、sibling、index**：组件渲染后，由于原（老版本） `虚拟 DOM 树` 被 `Fiber 树` 所替代，这四个属性用于在新的 `Fiber 树` 与其他的节点建立关系，以 `App` 函数组件为例，它的返回值又由多个其他的组件组成：
 ``` TypeScript
 const App: React.FC = () => {
   return <div>
