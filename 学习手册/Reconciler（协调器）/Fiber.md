@@ -227,7 +227,7 @@ const App: React.FC = () => {
   App(index跟fiber在自己父节点位置有关) --> div(0) : child
   div(0) --> App(index跟fiber在自己父节点位置有关) : return
   div(0) --> p(0) : child
-  string1: 初探 Fiber 树(0)
+  %% string1: 初探 Fiber 树(0)
   %% string2: 努力(0)
   %% string3: 加油(0)
   %% string4: 上进(0)
