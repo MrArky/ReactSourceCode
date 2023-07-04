@@ -51,7 +51,8 @@ React.createElement1('div', { className: 'layout' },
 
 在源码中，`React` 并没有使用 `Generator`，主要有以下几点原因：
 
-**原因一**：`Generator` 是 [有颜色的函数](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/)：使用 `yield*` 调用 `Generator` 函数时，要求 `yield*` 所在的函数必须是 `Generator` 函数，这具有传染性，一旦采用了此方案，开发者不得不掌握 `Generator` 函数，并在自己的代码逻辑中使用它。不使用它，也是 `React` 团队践行 [代数效应](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Reconciler%EF%BC%88%E5%8D%8F%E8%B0%83%E5%99%A8%EF%BC%89/Fiber.md#%E6%89%A9%E5%B1%95-%E4%BB%A3%E6%95%B0%E6%95%88%E5%BA%94%E4%BB%A5%E5%8F%8A%E5%AE%83%E4%B8%8E-react-%E7%9A%84%E8%81%94%E7%B3%BB) 的体现。
+#### 原因一
+`Generator` 是 [有颜色的函数](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/)：使用 `yield*` 调用 `Generator` 函数时，要求 `yield*` 所在的函数必须是 `Generator` 函数，这具有传染性，一旦采用了此方案，开发者不得不掌握 `Generator` 函数，并在自己的代码逻辑中使用它。不使用它，也是 `React` 团队践行 [代数效应](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Reconciler%EF%BC%88%E5%8D%8F%E8%B0%83%E5%99%A8%EF%BC%89/Fiber.md#%E6%89%A9%E5%B1%95-%E4%BB%A3%E6%95%B0%E6%95%88%E5%BA%94%E4%BB%A5%E5%8F%8A%E5%AE%83%E4%B8%8E-react-%E7%9A%84%E8%81%94%E7%B3%BB) 的体现。
 
 下面来看一个 `Generator` 处理递归的 🌰 ：
 ``` TypeScript
@@ -94,7 +95,8 @@ for (var f of flat(arr)){
 ```
 因为 `forEach` 不是一个 `Generator` 函数，因此，它的内部不能使用 `yield` 或者 `yield*` ;
 
-**原因二**：`Generator` 仅储存自身的 **上下文状态**，不同的 `Generator` 之间，状态是私有的、不可访问的。
+#### 原因二
+`Generator` 仅储存自身的 **上下文状态**，不同的 `Generator` 之间，状态是私有的、不可访问的。
 
 下面来看一个 `Generator` 执行的 🌰 ：
 ```  TypeScript
@@ -169,6 +171,7 @@ function FiberNode(
 }
 ```
 为了更清楚的了解它，下面对各属性逐一分析：
+#### 第一部分（Instance）
 - **tag**：工作标签，一共有 26 种 [标签类型](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactWorkTags.js#L10) ，函数组件标签类型、类组件标签类型、不确定的组件标签类型、宿主环境标签类型（所谓原生，如果是 `web` 环境，指的就是:`a`、`p`、`div` ···）···
   
   在 `Fiber` 架构中，通过这里可以知道：**渲染后，组件和 `Fiber` 对象是一一对应的。**
@@ -180,12 +183,36 @@ function FiberNode(
 
     ···
 - **elementType**：React 元素类型，在 `MemoComponent` 、`LazyComponent` 等一些特殊 `tag` 类型，会跟 `type` 有所不同。
-- **stateNode**：如果是 `web` 环境，对应该 `Fiber` 节点管理的真实 'DOM'。
-- **return、child、sibling、index**：组件渲染后，由于原有（老版本）的 `虚拟 DOM 树` 被 `Fiber 树` 所替代，这四个属性用于在新的 `Fiber 树` 与其他的节点建立关系，以 `App` 函数组件为例，它的返回值又由多个其他的组件组成：
+- **stateNode**：如果是 `web` 环境，对应该 `Fiber` 节点管理的真实 `DOM`。
+#### 第二部分（Fiber）
+- **return、child、sibling、index**：组件渲染后，由于原有（老版本）的 `虚拟 DOM 树` 被 `Fiber 树` 所替代，这四个属性用于 `Fiber 树` 中各 `Fiber` 节点之间建立关系。 `return` 指向自己的节点, `child` 指向自己的**第一个**子节点，`sibling` 指向自己的兄弟节点，`index` 则为自己在父节点所有子节点中的索引。关系图见 [Fiber 树](https://github.com/MrArky/ReactSourceCode/edit/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Reconciler%EF%BC%88%E5%8D%8F%E8%B0%83%E5%99%A8%EF%BC%89/Fiber.md#fiber-%E6%A0%91);
+- **ref**：挂载真实的 `DOM` 对象。如何挂载？见以下代码：
+  ``` TypeScript
+  const App = () => {
+      const ref = useRef<HTMLDivElement>(null)
+      return <div ref={ref}>初识React源码</div>
+  }
+  ```
+  浏览器 `DOM` 完成渲染后，`ref` 的值为 `{ current : div(真实dom对象) }`
+- **pendingProps**：
+- **memoizedProps**：
+- **updateQueue**：
+- **memoizedState**：
+- **dependencies**：
+- **mode**
+#### 第三部分（Effects）
+- **flags**：
+- **subtreeFlags**：
+- **deletions**：
+- **lanes**：
+- **childLanes**：
+- **alternate**：
+### Fiber 树
+以 `App` 函数组件为例，它的返回值又由多个其他的组件组成：
 ``` TypeScript
 const App: React.FC = () => {
   return <div>
-    <p>初探 Fiber 关系</p>
+    <p>初探 Fiber 树</p>
     <ul>
       <li>努力</li>
       <li>加油</li>
@@ -194,8 +221,35 @@ const App: React.FC = () => {
   </div>
 }
 ```
+对应的 `Fiber 树` 为（括号数字为**index**的值）：
 ``` mermaid
   stateDiagram
-  App 
+  App(index跟fiber在自己父节点位置有关) --> div(0) : child
+  div(0) --> App(index跟fiber在自己父节点位置有关) : return
+  div(0) --> p(0) : child
+  string1: 初探 Fiber 树(0)
+  string2: 努力(0)
+  string3: 加油(0)
+  string4: 上进(0)
+  li1 : li(0)
+  li2 : li(1)
+  li3 : li(2)
+  p(0) --> string1 : child
+  string1 --> p(0) : return
+  p(0) --> ul(1) : sibling
+  p(0) --> div(0) : return
+  ul(1) --> li1 : child
+  ul(1) --> div(0) : return
+  li1 --> string2 : child
+  li1 --> li2 : sibling
+  li1 --> ul(1) : return
+  string2 --> li1 : return
+  li2 --> string3 : child
+  li2 --> li3 : sibling
+  li2 --> ul(1) : return
+  string3 --> li2 : return
+  li3 --> string4 : child
+  li3 --> ul(1) : return
+  string4 --> li3 : return
 ```
 - 
