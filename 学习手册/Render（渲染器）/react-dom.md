@@ -62,12 +62,12 @@ createRoot(){
 ```
 根据代码可以看到，执行包含了两个重要的阶段：
 1. **createContainer** 阶段 —— 真正的逻辑实际从 `createFiberRoot` 开始（为了方便源码阅读，这里将代码串联一下：
-   [createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/client.js#L25)->[createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOM.js#L150)->[createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L166)->[createContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.new.js#L247)->[createFiberRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberRoot.new.js#L134)->[createHostRootFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js#L428)->[createFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.new.js#L210)）：
+   [createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/client.js#L25)->[createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOM.js#L150)->[createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L166)->[createContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.old.js#L247)->[createFiberRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberRoot.old.js#L134)->[createHostRootFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.old.js#L428)->[createFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiber.old.js#L210)）：
    - 首先，创建了 `FiberRootNode` 对象 `root`；
    - 再用 `createHostRootFiber` 创建了 `uninitializedFiber`；
    - 将 `root` 的 `current` 指向了 `uninitializedFiber`；
    - 将 `uninitializedFiber` 的 `stateNode` 指向了 `root`；
-   - 最后，调用 [initializeUpdateQueue](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberClassUpdateQueue.new.js#L170) 方法为 `uninitializedFiber` 初始化 **更新队列**。
+   - 最后，调用 [initializeUpdateQueue](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberClassUpdateQueue.old.js#L170) 方法为 `uninitializedFiber` 初始化 **更新队列**。
      
    `createHostRootFiber` 内部又调用了 `createFiber` 并返回了 `createFiber` 的返回值，所以 `uninitializedFiber` 其实是个 [Fiber](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Scheduler%EF%BC%88%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%89/Fiber.md) 对象。
 
@@ -88,7 +88,7 @@ createRoot(){
    ```
    为什么叫 `uninitializedFiber(未初始化的Fiber)` —— 因为到这里为止，Fiber 还未与任何 `ReactNode` 建立联系，接下来还需要看在 `render` 函数里又发生了什么。
    
-   **注意**：在第三个 [createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L166) 中，最后 `return` 时又将 [createContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.new.js#L247) 的返回值 `root` 传入 `ReactDOMRoot` 构造函数，返回了 `ReactDOMRoot` 实例（在这个实例中将 `root` 放入了它的 `_internalRoot` 属性中。由于 `ReactDOMRoot` 原型链上添加了 `render` 和 `unmount` 方法，所以被返回的 `ReactDOMRoot` 实例才是真正提供 `render` 和 `unmount` 方法的对象）。
+   **注意**：在第三个 [createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L166) 中，最后 `return` 时又将 [createContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.old.js#L247) 的返回值 `root` 传入 `ReactDOMRoot` 构造函数，返回了 `ReactDOMRoot` 实例（在这个实例中将 `root` 放入了它的 `_internalRoot` 属性中。由于 `ReactDOMRoot` 原型链上添加了 `render` 和 `unmount` 方法，所以被返回的 `ReactDOMRoot` 实例才是真正提供 `render` 和 `unmount` 方法的对象）。
 3. **listenToAllSupportedEvents** 阶段 —— 注册所有支持的事件，暂不做讨论。
 ### render 阶段
 回到图中函数调用栈，`render` 函数执行可以还原为以下代码（参数和各方法中的其他逻辑均已忽略）：
@@ -100,4 +100,4 @@ ReactDOMHydrationRoot.render.ReactDOMRoot.render(){
   }
 }
 ```
-同样，为了方便源码阅读，这里将代码串联一下：[ReactDOMHydrationRoot.render.ReactDOMRoot.render](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L92)->[updateContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.new.js#L321)->[requestUpdateLane](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.new.js#L452)-继续执行-[scheduleUpdateOnFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.new.js#L533)
+同样，为了方便源码阅读，这里将代码串联一下：[ReactDOMHydrationRoot.render.ReactDOMRoot.render](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L92)->[updateContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.old.js#L321)->[requestUpdateLane](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L452)-继续执行-[scheduleUpdateOnFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L533)
