@@ -87,14 +87,17 @@ createRoot(){
    }
    ```
    为什么叫 `uninitializedFiber(未初始化的Fiber)` —— 因为到这里为止，Fiber 还未与任何 `ReactNode` 建立联系，接下来还需要看在 `render` 函数里又发生了什么。
-2. **listenToAllSupportedEvents** 阶段 —— 注册所有支持的事件，暂不做讨论。
+   
+   **注意**：在第三个 [createRoot](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L166) 中，最后 `return` 时又将 [createContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.new.js#L247) 的返回值 `root` 传入 `ReactDOMRoot` 构造函数，返回了 `ReactDOMRoot` 实例（在这个实例中将 `root` 放入了它的 `_internalRoot` 属性中。由于 `ReactDOMRoot` 原型链上添加了 `render` 和 `unmount` 方法，所以被返回的 `ReactDOMRoot` 实例才是真正提供 `render` 和 `unmount` 方法的对象）。
+3. **listenToAllSupportedEvents** 阶段 —— 注册所有支持的事件，暂不做讨论。
 ### render 阶段
 回到图中函数调用栈，`render` 函数执行可以还原为以下代码（参数和各方法中的其他逻辑均已忽略）：
 ``` TypeScript
 ReactDOMHydrationRoot.render.ReactDOMRoot.render(){
   updateContainer(){
-    updateContainer();
+    scheduleUpdateOnFiber();
     scheduleUpdateOnFiber();
   }
 }
 ```
+同样，为了方便源码阅读，这里将代码串联一下：[ReactDOMHydrationRoot.render.ReactDOMRoot.render](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L92)->[updateContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.new.js#L321)->[scheduleUpdateOnFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.new.js#L452)-继续执行-[scheduleUpdateOnFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.new.js#L533)
