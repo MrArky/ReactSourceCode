@@ -183,7 +183,9 @@ function FiberNode(
 
     ···
 - **elementType**：React 元素类型，在 `MemoComponent` 、`LazyComponent` 等一些特殊 `tag` 类型，会跟 `type` 有所不同。
-- **stateNode**：如果是 `web` 环境，对应该 `Fiber` 节点管理的真实 `DOM`。
+- **stateNode**：如果是 `web` 环境，对应该 `Fiber` 节点管理的真实 `DOM`（**通过对真实 `Fiber` 的跟踪，发现这只对原生组件对应的  `Fiber` 对象中的 `stateNode` 描述正确**）。
+  - 函数组件的 `stateNode` 为 `null`;
+  - 类组件的 `stateNode` 存储了 `context`、`props`、`refs`、`state`、`updater` 等信息。
 #### 第二部分（Fiber）
 - **return、child、sibling、index**：组件渲染后，由于原有（老版本）的 `虚拟 DOM 树` 被 `Fiber 树` 所替代，这四个属性用于 `Fiber 树` 中各 `Fiber` 节点之间建立关系。 `return` 指向自己的节点, `child` 指向自己的**第一个**子节点，`sibling` 指向自己的兄弟节点，`index` 则为自己在父节点所有子节点中的索引。关系图见 [Fiber 树](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Reconciler%EF%BC%88%E5%8D%8F%E8%B0%83%E5%99%A8%EF%BC%89/Fiber.md#fiber-%E6%A0%91);
 - **ref**：挂载真实的 `DOM` 对象。如何挂载？见以下代码：
