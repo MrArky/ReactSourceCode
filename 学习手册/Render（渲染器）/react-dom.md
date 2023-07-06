@@ -100,4 +100,6 @@ ReactDOMHydrationRoot.render.ReactDOMRoot.render(){
   }
 }
 ```
-同样，为了方便源码阅读，这里将代码串联一下：[ReactDOMHydrationRoot.render.ReactDOMRoot.render](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L92)->[updateContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.old.js#L321)->[requestUpdateLane](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L452)-继续执行-[scheduleUpdateOnFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L533)
+同样，为了方便源码阅读，这里将代码大概串联一下：[ReactDOMHydrationRoot.render.ReactDOMRoot.render](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-dom/src/client/ReactDOMRoot.js#L92)->[updateContainer](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberReconciler.old.js#L321)->[requestUpdateLane](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L452)-继续执行-[scheduleUpdateOnFiber](https://github.com/MrArky/ReactSourceCode/blob/main/packages/react-18.2.0/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L533)
+
+这个过程比较繁琐，以下是执行流水账：
