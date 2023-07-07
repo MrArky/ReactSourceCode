@@ -26,4 +26,6 @@
 
   `COMMENT_NODE` 代表一个 `Comment` 节点，通常来讲 `container.nodeType !== COMMENT_NODE` 是一定成立的。如上 `container` 是 `div` 元素对象，它是一个 `元素` 节点。
   #### 调用 findHostInstanceWithNoPortals 方法
+  该方法将 `root.current` 作为参数传入，需要明确的是 `root.current` 为 `createContainer` 的 `uninitializedFiber`，他是一个 `Fiber` 对象。
+  findHostInstanceWithNoPortals 翻译过来为 “查找没有门户的主机实例”
 - 666
