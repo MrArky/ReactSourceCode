@@ -30,7 +30,7 @@
   - 这时候判断 container 是否存在 `context` ，如果不存在，将获取的 `context` 赋值给他。否则赋值给 `pendingContext` 。猜测后序会拿来更新 `context` ，`context` 
 的变化可能会对子组件有影响，因此此处不能直接赋值给 `context`。
   - 创建一个更新 `update`,调用 **createUpdate** 并传入 `eventTime` 和 `lane`。
-    ##### 调用 requestUpdateLane 方法
+    ##### 调用 createUpdate 方法
     返回下对象
     ``` TypeScript
     {
