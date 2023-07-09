@@ -18,9 +18,28 @@
       - `Date.now()` 由 `JS` 库提供，计算的是 `1970-01-01 00:00:00` 到当前时间以毫秒为单位的时间戳，兼容性更好，但是精度只能到毫秒。因此 `React` 有限选择了 `performance.now()`。
   - 请求车道 `lane`，并调用了 **requestUpdateLane** （扩展：[车道模型](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/Scheduler%EF%BC%88%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%89/lanes%EF%BC%88%E8%BD%A6%E9%81%93%E6%A8%A1%E5%9E%8B%EF%BC%89.md)）。
     ##### 调用 requestUpdateLane 方法
-    参数为 `current`，即 `uninitializedFiber`，后简称为 `Fiber`。在该方法中，返回什么样的车道主要分以下几种情况：
-    - 第一种情况， `Fiber.mode` 为奇数，那么返回 `SyncLane`;
-    - 第二种情况，更新不延迟到下一批并且当前有正在执行的上下文并且当前有正在进行渲染的车道，那么从就从正在渲染的车道中随机选择一个（**这段被官方标记为不只支持的**）。
-    - 第三种情况，看当前是否为 `transition`，如果是，需要查看 `currentEventTransitionLane` 值是否为 `NoLane`，不是就直接返回（**同一事件中的所有转换都分配到相同的车道**），否则就认领下一个过渡车道给 `currentEventTransitionLane`，并返回。
-    - 第四种情况，获取更新的优先级，如果返回值不为 `NoLane`，那就返回其对应的车道。
-    - 第五种情况，获取事件的优先级，返回其对应的车道。
+    - 参数为 `current`，即 `uninitializedFiber`，后简称为 `Fiber`。在该方法中，返回什么样的车道主要分以下几种情况：
+      - 第一种情况， `Fiber.mode` 为奇数，那么返回 `SyncLane`;
+      - 第二种情况，更新不延迟到下一批并且当前有正在执行的上下文并且当前有正在进行渲染的车道，那么从就从正在渲染的车道中随机选择一个（**这段被官方标记为不只支持的**）。
+      - 第三种情况，看当前是否为 `transition`，如果是，需要查看 `currentEventTransitionLane` 值是否为 `NoLane`，不是就直接返回（**同一事件中的所有转换都分配到相同的车道**），否则就认领下一个过渡车道给 `currentEventTransitionLane`，并返回。
+      - 第四种情况，获取更新的优先级，如果返回值不为 `NoLane`，那就返回其对应的车道。
+      - 第五种情况，获取事件的优先级，返回其对应的车道。
+  - 根据执行结果，得到的是事件优先级所对应的车道。但由于这不是因为事件所驱动的更新，所以系统默认返回的是默认级别的车道，十进制表示为 16。
+  - 判断是否开启了优先级调度（当看版本的的 `React` 是开启的），如果是，则根据当前车道的值标记 `render` 优先级。接下来调用 **markRenderScheduled** 方法并传入车道 `lane`（其实因为内部判断，什么都没做）。
+  - 从父组件获取上下文（这里因为父组件传入为 `null` ，因此获取的上下文是 `emptyContextObject`）。
+  - 这时候判断 container 是否存在 `context` ，如果不存在，将获取的 `context` 赋值给他。否则赋值给 `pendingContext` 。猜测后序会拿来更新 `context` ，`context` 
+的变化可能会对子组件有影响，因此此处不能直接赋值给 `context`。
+  - 创建一个更新 `update`,调用 **createUpdate** 并传入 `eventTime` 和 `lane`。
+    ##### 调用 requestUpdateLane 方法
+    返回下对象
+    ``` TypeScript
+    {
+      eventTime,
+      lane,
+      tag: UpdateState, // 值为 0
+      payload: null,
+      callback: null,
+      next: null,
+    }
+    ```
+
