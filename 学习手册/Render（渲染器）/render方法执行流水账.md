@@ -42,4 +42,11 @@
       next: null,
     }
     ```
+  - 将 `element` 挂载在 `payload` 上。
+  - 如果 **updateContainer** 方法有参数 `callback`，那么赋值给 `update` 的  `callback`。
+  - 调用 **updateContainer** 方法传入 `current`、`update`、 `lane` 排队更新。
+    ##### 调用 requestUpdateLane 方法
+    在这个方法中会判断更新是否为不安全的方法调用的，比如 `UNSAFE_componentWillReceive`，需要特殊处理。否则进入 **enqueueConcurrentClassUpdate**，并传入 `fiber`、`sharedQueue`、`update`、`lane`。
+      ###### 调用 requestUpdateLane 方法
+    
 
