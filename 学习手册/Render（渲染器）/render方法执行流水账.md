@@ -43,6 +43,11 @@
       - 把当前更新的活动时间标记在 `root.eventTimes` 上：`root.eventTimes` 是个数组，长度和 `root` 的总车道数一致是 `31`,如果使用的是 `0000000000000000000000000010000` 车道，那么就在 `root.eventTimes[4]` 的位置存储活动时间，他们的关系是相对的
         > 之所以车道数设置为 `31`，是因为在 `JS` 中，`32位` 的二进制数是带符号的，所以避免计算问题，只使用了 `31位` 二进制数来标记车道
     - 调用 ensureRootIsScheduled 方法，确保 `root` 更新被调度安排
-      - 将所有的代办车道（`pendingLanes`、`suspendedLanes` 和 `pingedLanes`）以及活动时间 `expirationTimes` 准备好
+      - 调用 markStarvedLanesAsExpired 方法，给所有的车道标记过期时间
+        - 将所有的代办车道（`pendingLanes`、`suspendedLanes` 和 `pingedLanes`）以及活动时间 `expirationTimes` 准备好
+        - 依次从 `pendingLanes` 中按照优先级从低到高，找到每一个存在的车道，取出它在 `expirationTimes` 对应的过期时间：
+          1. 如果过期时间是未设置，找到一个没有过期时间的待处理通道。 如果它没有挂起，或者如果它被ping通，假设它是cpu限制的。 使用当前时间计算新的过期时间
+          2. 否则看过期时间是否小于等于当前更新的活动时间，如果是，将该车道标记为过期车道 `root.expiredLanes |= lane`
+        - 将该车道从 `pendingLanes` 中移除。
       - 
     
