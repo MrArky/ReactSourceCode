@@ -208,7 +208,7 @@ function FiberNode(
 - **deletions**：
 - **lanes**：
 - **childLanes**：
-- **alternate**：
+- **alternate**：用于实现 **双缓存** 机制下的 `Fiber树` 更新。
 ### Fiber 树
 以 `App` 函数组件为例，它的返回值又由多个其他的组件组成：
 ``` TypeScript
