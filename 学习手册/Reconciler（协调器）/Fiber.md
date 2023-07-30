@@ -196,8 +196,8 @@ function FiberNode(
   }
   ```
   浏览器 `DOM` 完成渲染后，`ref` 的值为 `{ current : div(真实dom对象) }`
-- **pendingProps**：
-- **memoizedProps**：
+- **pendingProps**：待处理的 `props`，具有副作用，将会引起组件更新（在函数组件中，通常参数被更新时产生新的 `pendingProps`）。值得注意的是，包括下面 **memoizedProps、updateQueue、memoizedState、dependencies** 几个属性，都是为实现 `函数组件` 状态管理而准备的。
+- **memoizedProps**：每次渲染完成后，组件会将当前的 `props` 存起来，即 `memoizedProps`。通俗地讲，抛开 `状态` 影响不说，一个组件需要做哪些更新就是对比 `pendingProps` 和 `memoizedProps` 的差异。
 - **updateQueue**：
 - **memoizedState**：
 - **dependencies**：
