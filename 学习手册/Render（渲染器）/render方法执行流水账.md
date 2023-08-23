@@ -26,28 +26,58 @@
   - 调用 `enqueueUpdate` 方法排队更新
     - 将更新放入 `Fiber` 的更新队列（如果更新是Class组件不安全的阶段，那么直接将 `update` 放入了 `fiber.updateQueue.shared.pending`；否则将 `update` 放入了 `fiber.updateQueue.shared.interleaved`，并将整个 `interleaved` 加入全局队列 `concurrentQueues` 中实现并发更新）
     - 调用 markUpdateLaneFromFiberToRoot 重新标记从当前 `Fiber` 一直到 `root` 所有 `FiberNode` 的车道 `lane`
-      1. `lanes`: `Fiber` 的更新总共占了哪些车道
-      2. `childLanes`: `Fiber` 自己孩子的所有更新总共占了哪些车道
-      所以此时需要将当前更新对应优先级的车道 `lane` 与 `Fiber` 的 `lanes` 以及 `Fiber` 的所有父级节点的 `childLanes` 进行合并（这也包含父节点的 `alternate` 所对应的 `childLanes`）
+      1. 当前 `fiber` 及其缓存节点 `alternate` 更新 `lanes`
+      2. 当前 `fiber` 的所有父 `fiber` 更新自己和缓存节点  `alternate` 的 `childLanes`
 
-      直至递归值 `node.tag === HostRoot`
+      所以此时需要将当前更新对应优先级的车道 `lane` 与 `Fiber` 的 `lanes` 以及 `Fiber` 的所有父级节点的 `childLanes` 进行合并（这也包含父节点的 `alternate` 所对应的 `childLanes`）
+      
+      在 mergeLanes 方法源码中可以看到，使用了或运算 |
+
+      直至递归至 `node.tag === HostRoot`
   - 调用 scheduleUpdateOnFiber 方法，调度更新 `Fiber` —— 既然是并发更新，就需要考虑优先级
     - 检查嵌套更新，最多只能嵌套 `50` 层：
  
       主要避免在组件 `componentWillUpdate` 反复调用setState，防止无限循环
-    - 调用 markRootUpdated 方法标记根 `root` 有一个代办的更新
-      - 在 `root` 中代办道 `pendingLanes` 中加入当前更新所占用的车道：`pendingLanes |= updateLane`
+    - 调用 markRootUpdated 方法标记根 `root` 有一个待办的更新
+      - 在 `root` 中待办道 `pendingLanes` 中加入当前更新所占用的车道：`pendingLanes |= updateLane`
         
-        其实代办车道不止 `pendingLanes`，其实还有 `suspendedLanes` 和 `pingedLanes`，他们主要用于处理 `suspense` 类型组件的异步加载，优先级很低
-      - 如果当前的车道不是空闲车道 `IdleLane`（可以理解为优先级很低执行的车道），那么将 `suspendedLanes` 和 `pingedLanes` 设置为 `NoLanes` ，即没有代办车道，实际上就是继续挂起这些更新
+        其实待办车道不止 `pendingLanes`，其实还有 `suspendedLanes` 和 `pingedLanes`，他们主要用于处理 `suspense` 类型组件的异步加载，优先级很低
+      - 如果当前的车道不是空闲车道 `IdleLane`（可以理解为优先级更低执行的车道），那么将 `suspendedLanes` 和 `pingedLanes` 设置为 `NoLanes` ，即没有车道，实际上就是继续挂起这些更新
       - 把当前更新的活动时间标记在 `root.eventTimes` 上：`root.eventTimes` 是个数组，长度和 `root` 的总车道数一致是 `31`,如果使用的是 `0000000000000000000000000010000` 车道，那么就在 `root.eventTimes[4]` 的位置存储活动时间，他们的关系是相对的
         > 之所以车道数设置为 `31`，是因为在 `JS` 中，`32位` 的二进制数是带符号的，所以避免计算问题，只使用了 `31位` 二进制数来标记车道
-    - 调用 ensureRootIsScheduled 方法，确保 `root` 更新被调度安排
+    - 调用 ensureRootIsScheduled 方法，确保 `root` 更新被调度安排：使用此函数为根调度任务，每个根只有一个任务。如果一个任务已经被调度，我们将检查以确保现有任务的优先级与根用户正在处理的下一级任务的优先级相同。此函数在每次更新时调用，并在退出任务之前调用。
       - 调用 markStarvedLanesAsExpired 方法，给所有的车道标记过期时间
-        - 将所有的代办车道（`pendingLanes`、`suspendedLanes` 和 `pingedLanes`）以及活动时间 `expirationTimes` 准备好
+        - 将所有的待办车道（`pendingLanes`、`suspendedLanes` 和 `pingedLanes`）以及活动时间 `expirationTimes` 准备好
         - 依次从 `pendingLanes` 中按照优先级从低到高，找到每一个存在的车道，取出它在 `expirationTimes` 对应的过期时间：
-          1. 如果过期时间是未设置，找到一个没有过期时间的待处理通道。 如果它没有挂起，或者如果它被ping通，假设它是cpu限制的。 使用当前时间计算新的过期时间
-          2. 否则看过期时间是否小于等于当前更新的活动时间，如果是，将该车道标记为过期车道 `root.expiredLanes |= lane`
+          1. 如果过期时间是未设置，找到一个没有过期时间的待处理通道。 如果它没有挂起，或者如果它被ping通，使用更新活动开始时间计算一个过期时间，这个过期时间跟车道的优先级有关系，优先级越高，过期时间越靠近活动开始时间，这样它在调度过程中将会优先被处理。
+          2. 否则（有过期时间）看过期时间是否小于等于当前更新的活动时间，如果是，将该车道标记为过期车道 `root.expiredLanes |= lane`
         - 将该车道从 `pendingLanes` 中移除。
-      - 
+      - 调用 getNextLanes 方法获取下一个执行的车道 `nextLanes`，以及它的优先级，这个方法传入了两个参数 `root` 和 `workInProgressRootRenderLanes`：
+        - 首先是在 `root` 中找到优先级最高的车道，如果这时已经在调度 `root` 上的更新了，即 `workInProgressRootRenderLanes` 存在，那么有必要比较当前 `root` 上的更新的最高优先级车道和 `workInProgressRoot` 上的最高优先级车道的优先级。如果正在调度的更新的优先级更高，那么就不能打断当前的更新。
+        - 有一种情况时更新默认为同步时，那么默认车道需要添加进 `nextLanes` 中，以便它能在再次更新中得到处理。
+        - 在最后之前需要了解，在 `root` 中有一个 `entangledLanes`，直译过来叫“纠缠车道”，源码中有一长段文字对它进行了解释：
+          ``` TypeScript
+          // Check for entangled lanes and add them to the batch.
+          //
+          // A lane is said to be entangled with another when it's not allowed to render
+          // in a batch that does not also include the other lane. Typically we do this
+          // when multiple updates have the same source, and we only want to respond to
+          // the most recent event from that source.
+          //
+          // Note that we apply entanglements *after* checking for partial work above.
+          // This means that if a lane is entangled during an interleaved event while
+          // it's already rendering, we won't interrupt it. This is intentional, since
+          // entanglement is usually "best effort": we'll try our best to render the
+          // lanes in the same batch, but it's not worth throwing out partially
+          // completed work in order to do it.
+          // TODO: Reconsider this. The counter-argument is that the partial work
+          // represents an intermediate state, which we don't want to show to the user.
+          // And by spending extra time finishing it, we're increasing the amount of
+          // time it takes to show the final state, which is what they are actually
+          // waiting for.
+          //
+          // For those exceptions where entanglement is semantically important, like
+          // useMutableSource, we should ensure that there is no partial work at the
+          // time we apply the entanglement.
+          ```
     
