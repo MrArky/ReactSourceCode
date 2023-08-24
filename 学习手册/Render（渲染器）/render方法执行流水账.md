@@ -49,35 +49,38 @@
       - 调用 markStarvedLanesAsExpired 方法，给所有的车道标记过期时间
         - 将所有的待办车道（`pendingLanes`、`suspendedLanes` 和 `pingedLanes`）以及活动时间 `expirationTimes` 准备好
         - 依次从 `pendingLanes` 中按照优先级从低到高，找到每一个存在的车道，取出它在 `expirationTimes` 对应的过期时间：
-          1. 如果过期时间是未设置，找到一个没有过期时间的待处理通道。 如果它没有挂起，或者如果它被ping通，使用更新活动开始时间计算一个过期时间，这个过期时间跟车道的优先级有关系，优先级越高，过期时间越靠近活动开始时间，这样它在调度过程中将会优先被处理。
+          1. 如果过期时间是未设置，找到一个没有过期时间的待处理通道。 如果它没有挂起，或者如果它被ping通，使用更新活动开始时间计算一个过期时间，这个过期时间跟车道的优先级有关系，优先级越高，过期时间越靠近活动开始时间，这样它在调度过程中将会优先被处理
           2. 否则（有过期时间）看过期时间是否小于等于当前更新的活动时间，如果是，将该车道标记为过期车道 `root.expiredLanes |= lane`
-        - 将该车道从 `pendingLanes` 中移除。
+        - 将该车道从 `pendingLanes` 中移除
       - 调用 getNextLanes 方法获取下一个执行的车道 `nextLanes`，以及它的优先级，这个方法传入了两个参数 `root` 和 `workInProgressRootRenderLanes`：
-        - 首先是在 `root` 中找到优先级最高的车道，如果这时已经在调度 `root` 上的更新了，即 `workInProgressRootRenderLanes` 存在，那么有必要比较当前 `root` 上的更新的最高优先级车道和 `workInProgressRoot` 上的最高优先级车道的优先级。如果正在调度的更新的优先级更高，那么就不能打断当前的更新。
-        - 有一种情况时更新默认为同步时，那么默认车道需要添加进 `nextLanes` 中，以便它能在再次更新中得到处理。
-        - 在最后之前需要了解，在 `root` 中有一个 `entangledLanes`，直译过来叫“纠缠车道”，源码中有一长段文字对它进行了解释：
+        - 首先是在 `root` 中找到优先级最高的车道，如果这时已经在调度 `root` 上的更新了，即 `workInProgressRootRenderLanes` 存在，那么有必要比较当前 `root` 上的更新的最高优先级车道和 `workInProgressRoot` 上的最高优先级车道的优先级。如果正在调度的更新的优先级更高，那么就不能打断当前的更新
+        - 有一种情况时更新默认为同步时，那么默认车道需要添加进 `nextLanes` 中，以便它能在再次更新中得到处理
+        - 在最后之前需要了解，在 `root` 中有一个 `entangledLanes`，直译过来叫“纠缠车道”，源码中有一长段文字对它进行了解释，大致的意思是：
+          > 需要检查纠缠的车道，将其加入到当前批处理中。如果一个车道被称之为纠缠车道，他在一个批处理中不允许被渲染是因为这个批次中还不包含另一个车道。通常多个更新来自于同一个源，我们只希望源为最新时对这些更新进行响应
+
+          那么这么理解，如果之前的某些车道因为纠缠了当前的 `nextLanes` 中的车道没有被渲染，那么现在就需要把这些车道添加至这次的批处理中进行渲染
+      - 如果 `nextLanes` 中没有车道，同时 `existingCallbackNode` 不为空，那么执行 `cancelCallback(existingCallbackNode)` 取消当前的任务回调
+      - 使用 `nextLanes` 中最该优先级车道作为回调的优先级
+      - 从 `root.callbackPriority` 检查现在是否有任务，如果优先级与 `nextLanes` 回调的优先级相同，就重用现有的任务
+      - 否则如果现存任务（没有就不管），就要将其取消掉
+      - 然后安排一个新的回调任务
+      - 调用 `lanesToEventPriority(nextLanes)` 获取调度级别，调度级别有五个， [开始引言](https://github.com/MrArky/ReactSourceCode/blob/main/%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C/%E5%BC%80%E5%A7%8B.md#%E5%BC%95%E8%A8%80) 中已经介绍过
+      - 调用 `scheduleCallback` 方法安排回调，传入了一个重要的方法 `performConcurrentWorkOnRoot`
+        - 首先根据调度级别，计算了出了任务的过期时间
+        - 创建任务，以下是任务对象
           ``` TypeScript
-          // Check for entangled lanes and add them to the batch.
-          //
-          // A lane is said to be entangled with another when it's not allowed to render
-          // in a batch that does not also include the other lane. Typically we do this
-          // when multiple updates have the same source, and we only want to respond to
-          // the most recent event from that source.
-          //
-          // Note that we apply entanglements *after* checking for partial work above.
-          // This means that if a lane is entangled during an interleaved event while
-          // it's already rendering, we won't interrupt it. This is intentional, since
-          // entanglement is usually "best effort": we'll try our best to render the
-          // lanes in the same batch, but it's not worth throwing out partially
-          // completed work in order to do it.
-          // TODO: Reconsider this. The counter-argument is that the partial work
-          // represents an intermediate state, which we don't want to show to the user.
-          // And by spending extra time finishing it, we're increasing the amount of
-          // time it takes to show the final state, which is what they are actually
-          // waiting for.
-          //
-          // For those exceptions where entanglement is semantically important, like
-          // useMutableSource, we should ensure that there is no partial work at the
-          // time we apply the entanglement.
+          {
+            id: taskIdCounter++,
+            callback,
+            priorityLevel,
+            startTime,
+            expirationTime,
+            sortIndex: -1,
+          }
           ```
-    
+        - 将任务入队 `taskQueue`
+        - 调度一个主机回调，执行 requestHostCallback(flushWork)
+      - 设置当前 `root` 的回调优先级和新创建的 `callbackNode`
+    - 完成 `callbackNode` 方法执行
+  - 执行 `entangleTransitions` 执行缠绕的转换
+- 完成 `updateContainer` 执行，并返回更新车道
