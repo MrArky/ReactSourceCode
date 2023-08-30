@@ -84,3 +84,14 @@
     - 完成 `callbackNode` 方法执行
   - 执行 `entangleTransitions` 执行缠绕的转换
 - 完成 `updateContainer` 执行，并返回更新车道
+- 开始执行 `performWorkUntilDeadline` 方法，这个方法是在之前执行 `requestHostCallback` 方法时通过 `MessageChannel` 通知执行的
+  - 在这方法中主要是调度主机回调执行 `scheduledHostCallback` 方法，这个方法其实就是 `flushWork` 方法，在这个方法中的核心是执行 `workLoop` 方法
+    - 在`workLoop` 方法中，首先会去全局 `taskQueue` 取出最先需要处理任务，通过 `while` 循环逐一处理任务
+    - 约束：如果这个任务的过期时间比当前时间大、没有更多地处理时间否则就退出
+    - 接着取出任务中的回调即 `performConcurrentWorkOnRoot` 方法，就是从根节点开始执行并发工作
+    - 取出任务优先级
+    - 获取当前任务是否已经过时标志
+    - 如果标志为 `true`，那么执行这个回调，这个回调时所有并发任务的入口点，在此方法内，最终会根据优先级、车道情况执行 `renderRootConcurrent` 或者 `renderRootSync`,便是所谓的同步渲染或者并发渲染
+    - 最终进入 `renderRootSync` 方法
+      - 调用 `prepareFreshStack` 方法创建 `workInProgress`
+      - 调用 `workLoopSync` 方法，这个方法实际上也是一个 `while` 递归，以当前 `fiber` 节点创建（更新）子 `fiber` 节点的过程，对于 `workInProgress` 的更新方案，主要就取决于其 `tag` 类型
